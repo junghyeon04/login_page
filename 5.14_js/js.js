@@ -263,6 +263,3 @@ if (todoInput !== null) {
         }
     });
 }
-    todoInput.value = "";
-
-    renderTodos();
