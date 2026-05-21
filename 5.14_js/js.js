@@ -46,7 +46,7 @@
 // }
 
 
-// 개선된 회원가입 함수
+//회원가입 함수
 function signup() {
     const idInput = document.getElementById("id_v");
     const pwInput = document.getElementById("pw_v");
@@ -143,3 +143,126 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn !== null) {
     logoutBtn.addEventListener("click", logout);
 }
+
+// 현재 로그인한 사용자만의 todo 저장 이름 만들기
+function getTodoKey() {
+    const loginUser = localStorage.getItem("loginUser");
+    return `todoList_${loginUser}`;
+}
+
+// localStorage에서 todo 목록 가져오기
+function loadTodos() {
+    const savedTodos = localStorage.getItem(getTodoKey());
+
+    if (savedTodos === null) {
+        return [];
+    }
+
+    return JSON.parse(savedTodos);
+}
+
+// todo 목록을 localStorage에 저장하기
+function saveTodos(todos) {
+    localStorage.setItem(getTodoKey(), JSON.stringify(todos));
+}
+
+// todo 목록 화면에 출력하기
+function renderTodos() {
+    const todoList = document.getElementById("todoList");
+
+    if (todoList === null) {
+        return;
+    }
+
+    const todos = loadTodos();
+
+    todoList.innerHTML = "";
+
+    todos.forEach(function(todo, index) {
+        const li = document.createElement("li");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = todo.checked;
+
+        const span = document.createElement("span");
+        span.textContent = todo.text;
+
+        if (todo.checked === true) {
+            span.style.textDecoration = "line-through";
+        }
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "삭제";
+
+        checkbox.addEventListener("change", function() {
+            todos[index].checked = checkbox.checked;
+            saveTodos(todos);
+            renderTodos();
+        });
+
+        deleteBtn.addEventListener("click", function() {
+            todos.splice(index, 1);
+            saveTodos(todos);
+            renderTodos();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
+
+        todoList.appendChild(li);
+    });
+}
+
+// todo 추가하기
+function addTodo() {
+    const todoInput = document.getElementById("todoInput");
+
+    if (todoInput === null) {
+        return;
+    }
+
+    const text = todoInput.value.trim();
+
+    if (text === "") {
+        alert("할 일을 입력해주세요");
+        return;
+    }
+
+    const todos = loadTodos();
+
+    const newTodo = {
+        text: text,
+        checked: false
+    };
+
+    todos.push(newTodo);
+    saveTodos(todos);
+
+    todoInput.value = "";
+
+    renderTodos();
+}
+
+// todo 추가 버튼 연결
+const todoBtn = document.getElementById("todoBtn");
+
+if (todoBtn !== null) {
+    todoBtn.addEventListener("click", addTodo);
+    renderTodos();
+}
+
+// 엔터 키로 todo 추가
+const todoInput = document.getElementById("todoInput");
+
+if (todoInput !== null) {
+    todoInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            addTodo();
+        }
+    });
+}
+    todoInput.value = "";
+
+    renderTodos();
